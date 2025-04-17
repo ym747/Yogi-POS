@@ -1,0 +1,31 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple POS System</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="js/jspdf.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Yogi Fried Rice POS System</h1>
+    <form id="product-form">
+      <input type="text" id="product-name" placeholder="Product Name" required />
+      <input type="number" id="product-price" placeholder="Price" required />
+      <input type="number" id="product-qty" placeholder="Quantity" required />
+      <button type="submit">Add Product</button>
+    </form>
+
+    <table id="cart-table">
+      <thead>
+        <tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <p id="subtotal">Subtotal: RM0.00</p>
+    <p id="tax">Service Tax (6%): RM0.00</p>
+    <p id="grand-total">Grand Total: RM0.00</p>
+
+    <button id="generate-pdf">Generate Bill</button>
+  </div>
