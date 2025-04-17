@@ -99,6 +99,19 @@
       font-size: 1.1rem;
       margin-top: 10px;
     }
+
+    .remove-btn {
+      background-color: #FF6347;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      background-color: #FF4C33;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -122,6 +135,7 @@
           <th>Price</th>
           <th>Qty</th>
           <th>Total</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -163,10 +177,16 @@
       tbody.innerHTML = "";
       let subtotal = 0;
 
-      cart.forEach(product => {
+      cart.forEach((product, index) => {
         let total = product.price * product.qty;
         subtotal += total;
-        tbody.innerHTML += `<tr><td>${product.name}</td><td>${product.price.toFixed(2)}</td><td>${product.qty}</td><td>${total.toFixed(2)}</td></tr>`;
+        tbody.innerHTML += `<tr>
+          <td>${product.name}</td>
+          <td>${product.price.toFixed(2)}</td>
+          <td>${product.qty}</td>
+          <td>${total.toFixed(2)}</td>
+          <td><button class="remove-btn" onclick="removeProduct(${index})">Remove</button></td>
+        </tr>`;
       });
 
       let tax = subtotal * 0.06;
@@ -175,6 +195,12 @@
       document.getElementById("subtotal").innerText = `Subtotal: RM${subtotal.toFixed(2)}`;
       document.getElementById("tax").innerText = `Service Tax (6%): RM${tax.toFixed(2)}`;
       document.getElementById("grand-total").innerText = `Grand Total: RM${grandTotal.toFixed(2)}`;
+    }
+
+    // Function to remove a product from the cart
+    function removeProduct(index) {
+      cart.splice(index, 1);
+      updateCartDisplay();
     }
 
     // Generate PDF
@@ -219,6 +245,3 @@
   </script>
 </body>
 </html>
-
-
-
