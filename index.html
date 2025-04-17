@@ -3,41 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple POS System</title>
+  <title>Yogi Fried Rice POS System</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
+
     .container {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 700px;
-      margin: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 800px;
+      text-align: center;
     }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
     form input {
       padding: 10px;
       margin: 5px;
+      width: 100%;
+      max-width: 250px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-sizing: border-box;
     }
+
     form button {
       padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
     }
+
+    form button:hover {
+      background-color: #45a049;
+    }
+
     table {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 30px;
       border-collapse: collapse;
     }
+
     th, td {
+      padding: 12px;
       border: 1px solid #ddd;
-      padding: 8px;
       text-align: center;
     }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    td {
+      background-color: #fafafa;
+    }
+
     button {
+      padding: 12px 20px;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
       margin-top: 20px;
-      padding: 10px 20px;
+    }
+
+    button:hover {
+      background-color: #007B9E;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-top: 10px;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -45,6 +105,8 @@
 <body>
   <div class="container">
     <h1>Yogi Fried Rice POS System</h1>
+
+    <!-- Product Add Form -->
     <form id="product-form">
       <input type="text" id="product-name" placeholder="Product Name" required />
       <input type="number" id="product-price" placeholder="Price" required />
@@ -52,23 +114,32 @@
       <button type="submit">Add Product</button>
     </form>
 
+    <!-- Cart Table -->
     <table id="cart-table">
       <thead>
-        <tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
 
+    <!-- Summary Section -->
     <p id="subtotal">Subtotal: RM0.00</p>
     <p id="tax">Service Tax (6%): RM0.00</p>
     <p id="grand-total">Grand Total: RM0.00</p>
 
+    <!-- PDF Button -->
     <button id="generate-pdf">Generate Bill</button>
   </div>
 
   <script>
     let cart = [];
 
+    // Form submission for adding product to the cart
     document.getElementById("product-form").addEventListener("submit", function(e) {
       e.preventDefault();
       let name = document.getElementById("product-name").value;
@@ -86,6 +157,7 @@
       document.getElementById("product-form").reset();
     });
 
+    // Function to update the cart display and calculate totals
     function updateCartDisplay() {
       let tbody = document.querySelector("#cart-table tbody");
       tbody.innerHTML = "";
@@ -94,7 +166,7 @@
       cart.forEach(product => {
         let total = product.price * product.qty;
         subtotal += total;
-        tbody.innerHTML += `<tr><td>${product.name}</td><td>${product.price}</td><td>${product.qty}</td><td>${total.toFixed(2)}</td></tr>`;
+        tbody.innerHTML += `<tr><td>${product.name}</td><td>${product.price.toFixed(2)}</td><td>${product.qty}</td><td>${total.toFixed(2)}</td></tr>`;
       });
 
       let tax = subtotal * 0.06;
@@ -105,6 +177,7 @@
       document.getElementById("grand-total").innerText = `Grand Total: RM${grandTotal.toFixed(2)}`;
     }
 
+    // Generate PDF
     document.getElementById("generate-pdf").addEventListener("click", function() {
       if (cart.length === 0) {
         alert("No products added to the cart!");
@@ -116,19 +189,22 @@
       const now = new Date();
       const dateStr = now.toLocaleString();
 
+      // Add title and header info
       doc.setFontSize(16);
       doc.text("Yogi Fried Rice", 10, 10);
-      doc.setFontSize(10);
-      doc.text("POS Operator: Yogi Invoices Company", 10, 16);
-      doc.text(`Date & Time: ${dateStr}`, 10, 22);
       doc.setFontSize(12);
+      doc.text("POS Operator: Yogi Invoices Company", 10, 20);
+      doc.text(`Date & Time: ${dateStr}`, 10, 30);
+      doc.text("----------------------------", 10, 40);
 
-      let y = 30;
+      // Add product list to PDF
+      let y = 50;
       cart.forEach(item => {
         doc.text(`${item.name} x${item.qty} = RM${(item.price * item.qty).toFixed(2)}`, 10, y);
         y += 10;
       });
 
+      // Add totals to PDF
       let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
       let tax = subtotal * 0.06;
       let grand = subtotal + tax;
@@ -137,10 +213,12 @@
       doc.text(`Tax (6%): RM${tax.toFixed(2)}`, 10, y + 10);
       doc.text(`Total: RM${grand.toFixed(2)}`, 10, y + 20);
 
+      // Save PDF
       doc.save('bill.pdf');
     });
   </script>
 </body>
 </html>
+
 
 
