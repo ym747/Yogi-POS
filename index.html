@@ -1,31 +1,134 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple POS System</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="js/jspdf.min.js"></script>
+  <title>POS System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- jsPDF CDN -->
 </head>
 <body>
-  <div class="container">
-    <h1>Yogi Fried Rice POS System</h1>
-    <form id="product-form">
-      <input type="text" id="product-name" placeholder="Product Name" required />
-      <input type="number" id="product-price" placeholder="Price" required />
-      <input type="number" id="product-qty" placeholder="Quantity" required />
-      <button type="submit">Add Product</button>
-    </form>
+  <h1>POS System</h1>
+  
+  <form id="product-form">
+    <label for="product-name">Product Name:</label>
+    <input type="text" id="product-name" required>
+    <label for="product-price">Price:</label>
+    <input type="number" id="product-price" required step="0.01">
+    <label for="product-qty">Quantity:</label>
+    <input type="number" id="product-qty" required>
+    <button type="submit">Add Product</button>
+  </form>
 
-    <table id="cart-table">
-      <thead>
-        <tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <h2>Cart</h2>
+  <table id="cart-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Cart rows will be inserted here -->
+    </tbody>
+  </table>
 
-    <p id="subtotal">Subtotal: RM0.00</p>
-    <p id="tax">Service Tax (6%): RM0.00</p>
-    <p id="grand-total">Grand Total: RM0.00</p>
+  <p id="subtotal">Subtotal: RM0.00</p>
+  <p id="tax">Service Tax (6%): RM0.00</p>
+  <p id="grand-total">Grand Total: RM0.00</p>
 
-    <button id="generate-pdf">Generate Bill</button>
-  </div>
+  <button id="generate-pdf">Generate Bill (PDF)</button>
+
+  <script>
+    let cart = [];
+
+    // Handle product form submission
+    document.getElementById("product-form").addEventListener("submit", function(e) {
+      e.preventDefault(); // Prevent page refresh
+
+      // Get input values
+      let name = document.getElementById("product-name").value;
+      let price = parseFloat(document.getElementById("product-price").value);
+      let qty = parseInt(document.getElementById("product-qty").value);
+
+      // Add product to cart
+      cart.push({ name, price, qty });
+
+      // Clear form inputs after adding product
+      document.getElementById("product-name").value = '';
+      document.getElementById("product-price").value = '';
+      document.getElementById("product-qty").value = '';
+
+      // Update the cart display
+      updateCartDisplay();
+    });
+
+    // Update cart display
+    function updateCartDisplay() {
+      let tbody = document.querySelector("#cart-table tbody");
+      tbody.innerHTML = ""; // Clear the table body first
+      let subtotal = 0;
+
+      // Loop through the cart and populate the table
+      cart.forEach(product => {
+        let total = product.price * product.qty;
+        subtotal += total;
+        tbody.innerHTML += `
+          <tr>
+            <td>${product.name}</td>
+            <td>${product.price.toFixed(2)}</td>
+            <td>${product.qty}</td>
+            <td>${total.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      // Calculate tax and grand total
+      let tax = subtotal * 0.06;
+      let grandTotal = subtotal + tax;
+
+      // Update the totals on the page
+      document.getElementById("subtotal").innerText = `Subtotal: RM${subtotal.toFixed(2)}`;
+      document.getElementById("tax").innerText = `Service Tax (6%): RM${tax.toFixed(2)}`;
+      document.getElementById("grand-total").innerText = `Grand Total: RM${grandTotal.toFixed(2)}`;
+    }
+
+    // Handle PDF generation
+    document.getElementById("generate-pdf").addEventListener("click", function() {
+      const { jsPDF } = window.jspdf; // Access jsPDF
+      let doc = new jsPDF();
+      let now = new Date();
+      let dateStr = now.toLocaleString();
+
+      // Set PDF title and details
+      doc.setFontSize(16);
+      doc.text("Yogi Fried Rice", 10, 10);
+      doc.setFontSize(10);
+      doc.text("POS Operator: Yogi Invoices Company", 10, 16);
+      doc.text(`Date & Time: ${dateStr}`, 10, 22);
+      doc.setFontSize(12);
+
+      // Add product details to PDF
+      let y = 30;
+      cart.forEach(item => {
+        doc.text(`${item.name} x${item.qty} = RM${(item.price * item.qty).toFixed(2)}`, 10, y);
+        y += 10;
+      });
+
+      // Calculate subtotal, tax, and grand total for PDF
+      let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      let tax = subtotal * 0.06;
+      let grand = subtotal + tax;
+
+      // Add totals to PDF
+      doc.text(`Subtotal: RM${subtotal.toFixed(2)}`, 10, y);
+      doc.text(`Tax (6%): RM${tax.toFixed(2)}`, 10, y + 10);
+      doc.text(`Total: RM${grand.toFixed(2)}`, 10, y + 20);
+
+      // Generate and save PDF
+      doc.save("invoice.pdf");
+    });
+  </script>
+</body>
+</html>
