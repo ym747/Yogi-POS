@@ -1,16 +1,16 @@
- <script>
+ <!-- Add jsPDF CDN link in your head if it's not already there -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
   let cart = [];
 
   // Handle product form submission
   document.getElementById("product-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    
-    // Get product details
+    e.preventDefault(); // Prevent form refresh
     let name = document.getElementById("product-name").value;
     let price = parseFloat(document.getElementById("product-price").value);
     let qty = parseInt(document.getElementById("product-qty").value);
 
-    // Add product to cart array
     cart.push({ name, price, qty });
 
     // Clear form fields
@@ -25,10 +25,9 @@
   // Update the cart display table
   function updateCartDisplay() {
     let tbody = document.querySelector("#cart-table tbody");
-    tbody.innerHTML = "";  // Clear the table body first
+    tbody.innerHTML = ""; // Clear the table body first
     let subtotal = 0;
 
-    // Loop through each item in the cart and display them in the table
     cart.forEach(product => {
       let total = product.price * product.qty;
       subtotal += total;
@@ -42,11 +41,9 @@
       `;
     });
 
-    // Calculate tax and grand total
     let tax = subtotal * 0.06;
     let grandTotal = subtotal + tax;
 
-    // Update the totals on the page
     document.getElementById("subtotal").innerText = `Subtotal: RM${subtotal.toFixed(2)}`;
     document.getElementById("tax").innerText = `Service Tax (6%): RM${tax.toFixed(2)}`;
     document.getElementById("grand-total").innerText = `Grand Total: RM${grandTotal.toFixed(2)}`;
@@ -54,7 +51,7 @@
 
   // Handle PDF generation
   document.getElementById("generate-pdf").addEventListener("click", function() {
-    const { jsPDF } = window.jspdf;
+    const { jsPDF } = window.jspdf; // Use jsPDF from the library
     let doc = new jsPDF();
     let now = new Date();
     let dateStr = now.toLocaleString();
@@ -88,3 +85,4 @@
     doc.save("invoice.pdf");
   });
 </script>
+
